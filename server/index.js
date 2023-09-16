@@ -1,9 +1,11 @@
 import express from "express";
-import { PORT, mongoDBURL } from "./config.js";
+// import { PORT, mongoDBURL } from "./config.js";
 import mongoose from "mongoose";
 // import { Book } from "./models/bookModel.js";
 import booksRoute from "./routes/booksRoute.js";
 import cors from "cors";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 
@@ -20,6 +22,8 @@ app.use(cors());
 //   allowedHeaders: ["Content-Type"],
 // });
 
+const PORT = process.env.PORT || 5050;
+
 app.get("/", (req, res) => {
   console.log(req);
   return res.status(234).send("Welcome to the BOOKSTORE!");
@@ -27,14 +31,29 @@ app.get("/", (req, res) => {
 
 app.use("/books", booksRoute);
 
+// mongoose
+//   .connect(precess.env.MONGO_URI)
+//   .then(() => {
+//     console.log("App connected to database");
+//   })
+//   .catch((error) => {
+//     console.log(error);
+//   });
+// app.listen(PORT, () => {
+//   console.log(`App is listening to port: ${PORT}`);
+// });
+
+// Connect to MongoDB Atlas Database
 mongoose
-  .connect(mongoDBURL)
-  .then(() => {
-    console.log("App connected to database");
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
   })
-  .catch((error) => {
-    console.log(error);
-  });
-app.listen(PORT, () => {
-  console.log(`App is listening to port: ${PORT}`);
-});
+  .then(() => {
+    console.log("MongoDB connected");
+    // Start the Express server
+    app.listen(PORT, () => {
+      console.log(`App is listening to port: ${PORT}`);
+    });
+  })
+  .catch((err) => console.error(err));
